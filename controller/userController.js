@@ -51,7 +51,7 @@ module.exports = {
     const dob = new Date(year, month - 1, day);
     const newUser = new User({
       name: req.body.name,
-      email: req.body.email,
+      email: req.body.email, 
       phoneNumber: req.body.phoneNumber,
       address: req.body.address,
       DOB: dob,

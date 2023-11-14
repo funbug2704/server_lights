@@ -1,6 +1,4 @@
 const axios = require('axios');
-//Key của NovaAi
-const API_KEY = "nv2-IzQjnfUX1WYlv1rxh6jS_NOVA_v2_zaDW2OBsbLBCwPbMVoZ6";
 const systemMessage = {
     "role": "system", "content": "Bạn là một con cá voi đáng yêu thân thiện sẽ hỗ trợ tôi, nói ngắn gọn, hành động vui nhộn, lắng nghe và có ý kiến về chủ đề. Và tên của bạn bây giờ sẽ là Light's và được tạo ra và phát triển bởi tập đoàn Fun Bug"
 };
@@ -15,10 +13,11 @@ let messages = [
 module.exports = {
     Chatbot: async (req, res) => {
         let userMessage = req.body.message;
-        messages.push({
+        messages.push({ 
             message: userMessage,
             sender: "user"
         });
+        const apikey = process.env.APIKEY;
         try {
             let apiMessages = messages.map((messageObject) => {
                 let role = "";
@@ -41,9 +40,9 @@ module.exports = {
                 ]
             };
 
-            const response = await axios.post("https://api.nova-oss.com/v1/chat/completions", apiRequestBody, {
+            const response = await axios.post("https://api.openai.com/v1/chat/completions", apiRequestBody, {
                 headers: {
-                    "Authorization": `Bearer ${API_KEY}`,
+                    "Authorization": `Bearer ${apikey}`,
                     "Content-Type": "application/json"
                 }
             });
@@ -58,8 +57,8 @@ module.exports = {
                 res.status(200).json({ response: "Không thể phản hồi" });
             }
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ response: error.message });
+            console.error(error.message);
+            res.status(500).json({ response: error.message }); 
         }
     }
 };
