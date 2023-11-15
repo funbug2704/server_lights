@@ -9,15 +9,16 @@ let messages = [
         sender: "bot"
     }
 ];
-
-module.exports = {
+ 
+module.exports = { 
     Chatbot: async (req, res) => {
         let userMessage = req.body.message;
-        messages.push({ 
+        messages.push({  
             message: userMessage,
-            sender: "user"
+            sender: "user" 
         });
-        const apikey = process.env.APIKEY;
+        apikey = process.env.APIKEY;
+        apikey = apikey.replace(/^lights-|(?<=.)(?=-funbug$)|-funbug$/g, '');
         try {
             let apiMessages = messages.map((messageObject) => {
                 let role = "";
