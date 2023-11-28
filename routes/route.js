@@ -25,6 +25,8 @@ const imageController = require("../controller/imageController");
 
 const Multer = require('multer');
 const { addMessage, getMessages } = require("../controller/messageController");
+const songController = require("../controller/songController");
+const MissionCardController = require("../controller/MissionCardController");
 
 const multer = Multer({
     storage: Multer.memoryStorage(),
@@ -79,6 +81,9 @@ app.post("/Chatbot", ChatbotController.Chatbot)
 //Route cho Film
 app.get("/Film", filmController.getFilm);
 
+//Route cho Song
+app.get("/Song", songController.getSong);
+
 //Route cho Game
 app.get("/Game", gameController.getGame);
 
@@ -95,6 +100,8 @@ app.put('/user/update-dob/:id', userController.updateDOB);
 app.put('/user/update-address/:id', userController.updateAddress);
 
 app.put('/userdata/update-bio/:id', userController.updateBio);
+
+app.put('/user/update-noti/:id', userController.updateNoti);
 
 // Cập nhật trường socialConnections của UserData
 app.put('/userdata/update-social/:id', userController.updateSocialConnection);
@@ -113,4 +120,10 @@ app.post('/get-or-create-user-date-activity', getUserDateActivity);
 //Router cho message
 app.post("/addmsg", addMessage);
 app.post("/getmsg", getMessages);
+
+//Router cho Mission Card
+app.post("/regisCard", MissionCardController.createData);
+app.put("/scanCard/:id", MissionCardController.scanCard);
+app.put("/updateCard/:id", MissionCardController.updateCard);
+app.get("/getUserCard/:id", MissionCardController.getUserCard);
 module.exports = app

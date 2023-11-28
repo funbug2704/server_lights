@@ -5,7 +5,7 @@ const Image = require("../models/Image");
 let projectId = 'lights-397915';
 let keyFilename = './myKey.json';
 const storage = new Storage({
-    projectId,
+    projectId, 
     keyFilename,
 });
 const bucket = storage.bucket('lightskn');
