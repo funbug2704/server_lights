@@ -17,5 +17,6 @@ router.put('/user/update-address/:id', userController.updateAddress);
 router.put('/userdata/update-bio/:id', userController.updateBio);
 router.put('/user/update-noti/:id', userController.updateNoti);
 router.put('/userdata/update-social/:id', userController.updateSocialConnection);
-
+router.post("/searchByName", userController.searchByName);
+router.post("/addFriend", userController.addFriend);
 module.exports = router;

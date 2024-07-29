@@ -254,5 +254,26 @@ module.exports = {
       res.status(500).json({ error: error.message });
     }
   },
-  
+  searchByName: async (req, res) => {
+    const { name } = req.body;
+    try {
+      const users = await User.find({ name: { $regex: name, $options: "i" } });
+      res.status(200).json(users);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
+  addFriend: async (req, res) => {
+    const { userId, friendId } = req.body;
+    try {
+      const user = await User.findById(userId);
+      if (!user.friends.includes(friendId)) {
+        user.friends.push(friendId);
+        await user.save();
+      }
+      res.status(200).json(user);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  },
 };
