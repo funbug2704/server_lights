@@ -34,7 +34,8 @@ module.exports = {
         missionDayRecords.push(missionDayRecord);
       }
       res.status(200).json(missionDayRecords);
-    } catch (error) { 
+    } catch (error) {
+      console.log(error)
       res.status(500).json(error);
     }
   },
