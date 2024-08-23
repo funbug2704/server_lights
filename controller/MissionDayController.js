@@ -9,36 +9,54 @@ function shuffleArray(array) {
   }
   return array;
 }
+
 module.exports = {
   createMissionDay: async (req, res) => {
     try {
       const { userId } = req.body;
-      await  MissionDay.deleteMany({ userId })
-      const Level_Depression = await Level_depression.findOne({ userId });
-      const Missions = await Mission.find({emotion: Level_Depression.level});
+
+      // Delete all MissionDay records for this user
+      await MissionDay.deleteMany({ userId });
+
+      // Find the Level_depression record for the user
+      let Level_Depression = await Level_depression.findOne({ userId });
+
+      // If no record exists, create a new one with level 3
+      if (!Level_Depression) {
+        Level_Depression = new Level_depression({ userId, level: 3 });
+        await Level_Depression.save();
+      }
+
+      // Find missions based on the user's depression level
+      const Missions = await Mission.find({ emotion: Level_Depression.level });
       shuffleArray(Missions);
+
       const randomMissions = Missions.slice(0, 4);
       const missionDayRecords = [];
+
       for (let i = 0; i < randomMissions.length; i++) {
         const missionId = randomMissions[i]._id;
-        // Tạo một bản ghi mới trong bảng MissionDay
+
+        // Create a new MissionDay record
         const missionDayRecord = new MissionDay({
           userId: userId,
           missionId: missionId,
         });
 
-        // Lưu bản ghi mới vào cơ sở dữ liệu
+        // Save the new record to the database
         await missionDayRecord.save();
 
-        // Thêm bản ghi vào mảng missionDayRecords
+        // Add the record to the array
         missionDayRecords.push(missionDayRecord);
       }
+
       res.status(200).json(missionDayRecords);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       res.status(500).json(error);
     }
   },
+
   getMissionDayById: async (req, res) => {
     try {
       const userId = req.params.id;
@@ -48,28 +66,30 @@ module.exports = {
           model: "Mission",
           select: "description",
         });
-  
+
       if (!missionDays) {
-        return res.status(404).json({ message: "MissionDay không tồn tại" });
+        return res.status(404).json({ message: "MissionDay not found" });
       }
-  
+
       res.status(200).json(missionDays);
     } catch (error) {
       res.status(500).json(error);
     }
   },
+
   updateMissionDayById: async (req, res) => {
     try {
-      // Xóa MissionDay bằng ID
-      const deletedMissionDay = await MissionDay.findByIdAndUpdate(req.params.id, 
-        { $set: { checkCompleted: true } }, { new: true }
-        );
+      const updatedMissionDay = await MissionDay.findByIdAndUpdate(
+        req.params.id,
+        { $set: { checkCompleted: true } },
+        { new: true }
+      );
 
-      if (!deletedMissionDay) {
-        return res.status(404).json({status: false});
+      if (!updatedMissionDay) {
+        return res.status(404).json({ status: false });
       }
 
-      res.status(200).json({status: true});
+      res.status(200).json({ status: true });
     } catch (error) {
       res.status(500).json(error);
     }

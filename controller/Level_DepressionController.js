@@ -1,6 +1,7 @@
 const Level_depression = require("../models/Level_Depression");
 const Emotion = require("../models/Emotion");
 const Test = require("../models/Test");
+
 module.exports = {
   createLevelDepression: async (req, res) => {
     try {
@@ -17,8 +18,7 @@ module.exports = {
 
   getLevelDepressionById: async (req, res) => {
     try {
-      // Truy vấn Level_depression bằng ID
-      const levelDepression = await Level_depression.find(req.params.id);
+      const levelDepression = await Level_depression.findById(req.params.id);
 
       if (!levelDepression) {
         return res.status(404).json({ message: "Level_depression không tồn tại" });
@@ -33,24 +33,38 @@ module.exports = {
   updateLevelDepression: async (req, res) => {
     try {
       const { userId } = req.body;
+
+      // Fetch the test data for the user
       const tests = await Test.findOne({ userId });
-      let testAverage = tests.level;
-      const emotion = await Emotion.find({ userId });
+      let testAverage = tests ? tests.level : null;
+
+      // Calculate the average emotion for the user
+      const emotions = await Emotion.find({ userId });
       let emotionAverage = 0;
-      for (let i = 0; i < emotion.length; i++) {
-        emotionAverage += emotion[i].emotion / emotion.length;
+      for (let i = 0; i < emotions.length; i++) {
+        emotionAverage += emotions[i].emotion / emotions.length;
       }
-      let result = (testAverage + emotionAverage) / 2;
+
+      // Calculate the final result
+      let result;
+      if (testAverage !== null) {
+        result = (testAverage + emotionAverage) / 2;
+      } else {
+        result = emotionAverage;
+      }
       let roundedResult = Math.ceil(result);
 
-      const updatedLevelDepression = await Level_depression.findOneAndUpdate(
+      // Find or create the Level_depression record for the user
+      let updatedLevelDepression = await Level_depression.findOneAndUpdate(
         { userId: userId },
         { $set: { level: roundedResult } },
         { new: true }
       );
 
       if (!updatedLevelDepression) {
-        return res.status(404).json({ message: "Level_depression không tồn tại" });
+        // If no record exists, create one
+        const newLevelDepression = new Level_depression({ userId, level: roundedResult });
+        updatedLevelDepression = await newLevelDepression.save();
       }
 
       res.status(200).json(updatedLevelDepression);
@@ -61,7 +75,6 @@ module.exports = {
 
   deleteLevelDepression: async (req, res) => {
     try {
-      // Xóa Level_depression bằng ID
       const deletedLevelDepression = await Level_depression.findByIdAndRemove(req.params.id);
 
       if (!deletedLevelDepression) {
