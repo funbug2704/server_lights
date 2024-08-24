@@ -2,6 +2,11 @@ const User = require("../models/User");
 const cryptoJS = require("crypto-js");
 const UserData = require("../models/UserData");
 const Level_depression = require("../models/Level_Depression")
+
+const removeAccents = (str) => {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+};
+
 module.exports = {
   updateUser: async (req, res) => {
     if (req.body.password) {
@@ -67,27 +72,31 @@ module.exports = {
   },
   loginUser: async (req, res) => {
     try {
-      console.log(req.body)
+      console.log(req.body);
       const user = await User.findOne({
-        email: req.body.email
-      })
-      console.log(user)
+        email: req.body.email,
+      });
+      console.log(user);
       if (!user) {
-        res.status(200).json({ message: false })
+        res.status(200).json({ message: false });
       } else {
-
         const de_pass = cryptoJS.AES.decrypt(user.password, process.env.SECRET_KEY);
         const depassword = de_pass.toString(cryptoJS.enc.Utf8);
         if (depassword != req.body.password) {
-          res.status(200).json({ message: false })
+          res.status(200).json({ message: false });
         } else {
-          res.status(200).json({ user: user, message: true })
+          // Remove accents from the user's name and address
+          const userResponse = {
+            ...user._doc, // Get the user object fields
+            name: removeAccents(user.name),
+            address: removeAccents(user.address),
+          };
+          res.status(200).json({ user: userResponse, message: true });
         }
-
       }
     } catch (error) {
-      console.log(error)
-      res.status(500).json(error)
+      console.log(error);
+      res.status(500).json(error);
     }
   },
   getUserDataById: async (req, res) => {
