@@ -67,9 +67,11 @@ module.exports = {
   },
   loginUser: async (req, res) => {
     try {
+      console.log(req.body)
       const user = await User.findOne({
         email: req.body.email
       })
+      console.log(user)
       if (!user) {
         res.status(200).json({ message: false })
       } else {
@@ -84,6 +86,7 @@ module.exports = {
 
       }
     } catch (error) {
+      console.log(error)
       res.status(500).json(error)
     }
   },
